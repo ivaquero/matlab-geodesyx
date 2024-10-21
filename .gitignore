@@ -1,0 +1,12 @@
+exe
+data
+debug
+release
+Makefile
+*.Debug
+*.Release
+*.user
+*.autosave
+*.zip
+*.pdf
+.DS_Store
