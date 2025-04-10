@@ -5,7 +5,7 @@
 %
 % In:
 %   utc                         UTC time in 'yyyy-mm-dd HH:MM:SS'
-%   [x_eci, y_eci, z_eci]       Target's inertial coordinates in [m, m, m]
+%   eci                         Target's inertial coordinates in [m, m, m]
 % Out:
 %   varargout                   Target's ECEF coordinates in [m, m, m]
 % Attention:

@@ -28,15 +28,15 @@ function dms = uangle2dms(angle, options)
         otherwise , error('Incorrect Input Angle Unit!');
     end
 
-    % 构建 dms 数组
+    % construct dms array
     minutes = 60 * rem(angleInDegrees, 1);
     dms = [fix(angleInDegrees) fix(minutes) 60 * rem(minutes, 1)];
 
-    % 如果 degrees or minutes < 0，则翻转符号
+    % if degrees or minutes < 0, then flip the sign
     negativeDorM = any(dms(:, 1:2) < 0, 2);
     dms(negativeDorM, 3) = -dms(negativeDorM, 3);
 
-    % 如果 degrees < 0，则翻转符号
+    % if degrees < 0, then flip the sign
     negativeD = (dms(:, 1) < 0);
     dms(negativeD, 2) = -dms(negativeD, 2);
 

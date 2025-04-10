@@ -14,7 +14,7 @@ Its main design principles are as follows
 
 - Function names adopt name pattern in the `Mapping` toolbox, while
   - add prefix `c` to the coordiate transformation function
-  - add prefix `r` to the rotation function
+  - add prefix `q` to the quaternion function
   - add prefix `u` to the unit conversion function
   - add prefix `get_` to the calculation function
 - Input includes parameter type verification
