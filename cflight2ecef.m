@@ -42,7 +42,7 @@ function varargout = cflight2ecef(r, lat, lon, v_radial, chi, gamma, options)
     y = r .* cos(lat) .* sin(lon);
     z = r .* sin(lat);
 
-    [lat0, lon0, ~] = cecef2geodetic(x, y, z, options);
+    [lat0, lon0, ~] = cecef2geodetic(x, y, z);
 
     % NED coordinates
     vn = v_radial .* cos(gamma) .* cos(chi);

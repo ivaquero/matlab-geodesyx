@@ -50,9 +50,9 @@ function varargout = cplatform2ant(platform, az0, elev0, rslant0, options)
 
     switch options.angleUnitOut
         case 'degrees'
+            azant = rad2deg(azant);
+            elevant = rad2deg(elevant);
         case 'radians'
-            azant = deg2rad(azant);
-            elevant = deg2rad(elevant);
         otherwise , error('Incorrect Output Angle Unit!');
     end
 

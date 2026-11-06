@@ -15,7 +15,7 @@
 % References:
 %
 
-function varargout = cecef2flight(x, y, z, vx, vy, vz)
+function varargout = cecef2flight(x, y, z, vx, vy, vz, options)
 
     arguments
         x {mustBeReal}
@@ -24,17 +24,19 @@ function varargout = cecef2flight(x, y, z, vx, vy, vz)
         vx {mustBeReal}
         vy {mustBeReal}
         vz {mustBeReal}
+        options.spheroid (1, 1) refEllipsoid = refEllipsoid('wgs84', 'm')
+        options.angleUnitOut (1, 1) string = 'degrees'
     end
 
     % position
-    r = sqrt(x ^ 2 + y ^ 2 + z ^ 2);
+    r = sqrt(x .^ 2 + y .^ 2 + z .^ 2);
     lat = asin(z ./ r);
     lon = mod(atan2(y, x), 2 * pi);
 
     [lat0, lon0, ~] = cecef2geodetic(x, y, z, 'spheroid', options.spheroid);
 
     % velocity
-    v_radial = sqrt(vx ^ 2 + vy ^ 2 + vz ^ 2);
+    v_radial = sqrt(vx .^ 2 + vy .^ 2 + vz .^ 2);
     [ve, vn, vu] = cecef2enuv(vx, vy, vz, lat0, lon0);
 
     chi = mod(atan2(ve, vn), 2 * pi);

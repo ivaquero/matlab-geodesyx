@@ -15,7 +15,7 @@
 function angle = udms2angle(dms, options)
 
     arguments
-        dms (3, 1) double
+        dms (:, 3) double {mustBeReal}
         options.angleUnitOut (1, 1) string = 'degrees'
     end
 
@@ -25,9 +25,10 @@ function angle = udms2angle(dms, options)
 
     switch options.angleUnitOut
         case 'degrees'
+            angle = angleInDegrees;
         case 'radians'
             angle = deg2rad(angleInDegrees);
-        otherwise , error('Incorrect Input Angle Unit!');
+        otherwise , error('Incorrect Output Angle Unit!');
     end
 
 end

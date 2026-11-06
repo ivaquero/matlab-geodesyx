@@ -23,6 +23,7 @@ function dms = uangle2dms(angle, options)
 
     switch options.angleUnit
         case 'degrees'
+            angleInDegrees = angle;
         case 'radians'
             angleInDegrees = rad2deg(angle);
         otherwise , error('Incorrect Input Angle Unit!');

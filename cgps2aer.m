@@ -32,8 +32,8 @@ function varargout = cgps2aer(GPS, lat0, lon0, alt0, options)
     end
 
     time = GPS(1);
-    lat = GPS(3);
-    lon = GPS(2);
+    lat = GPS(2);
+    lon = GPS(3);
     alt = GPS(4);
 
     [x, y, z] = cgeodetic2ecef(lat, lon, alt, 'spheroid', options.spheroid, 'angleUnit', options.angleUnit);
@@ -41,15 +41,15 @@ function varargout = cgps2aer(GPS, lat0, lon0, alt0, options)
     [az, ~, rslant] = cenu2aer(xEast, yNorth, zUp, 'angleUnitOut', options.angleUnitOut);
 
     % Use the measurement elevation
-    elev = calc_hr2elev(alt, rslant, alt0, 'angleUnit', options.angleUnit, 'angleUnitOut', options.angleUnitOut);
+    elev = get_elev_by_hr(alt, rslant, alt0, 'angleUnit', options.angleUnit, 'angleUnitOut', options.angleUnitOut);
 
     if nargout == 1
         varargout{1} = [time, az, elev, rslant];
     elseif nargout == 4
-        varargout{1} = time(1);
-        varargout{2} = az(2);
-        varargout{3} = elev(3);
-        varargout{4} = rslant(4);
+        varargout{1} = time;
+        varargout{2} = az;
+        varargout{3} = elev;
+        varargout{4} = rslant;
     else
         error('Invalid Number of Output Arguments');
     end

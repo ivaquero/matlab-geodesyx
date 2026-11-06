@@ -1,13 +1,35 @@
+% Rotation Matrix: Euler angles (phi, theta, psi) ==> rotation matrix
+%
+% Syntax:
+%   rot = qeuler2rot(phi, theta, psi)
+%
+% Input:
+%   phi, theta, psi             Roll/pitch/yaw in rad (scalar, or column/row vectors)
+% Output:
+%   rot                         Rotation matrix/matrices, 3 x 3 x N
+%
+
 function rot = qeuler2rot(phi, theta, psi)
-    rot(1, 1, :) = cos(psi) .* cos(theta);
-    rot(1, 2, :) = -sin(psi) .* cos(phi) + cos(psi) .* sin(theta) .* sin(phi);
-    rot(1, 3, :) = sin(psi) .* sin(phi) + cos(psi) .* sin(theta) .* cos(phi);
 
-    rot(2, 1, :) = sin(psi) .* cos(theta);
-    rot(2, 2, :) = cos(psi) .* cos(phi) + sin(psi) .* sin(theta) .* sin(phi);
-    rot(2, 3, :) = -cos(psi) .* sin(phi) + sin(psi) .* sin(theta) .* cos(phi);
+    phi = phi(:).';                   % row (1, n) for third-dim layout
+    theta = theta(:).';
+    psi = psi(:).';
 
-    rot(3, 1, :) = -sin(theta);
-    rot(3, 2, :) = cos(theta) .* sin(phi);
-    rot(3, 3, :) = cos(theta) .* cos(phi);
+    cP = cos(phi); sP = sin(phi);
+    cT = cos(theta); sT = sin(theta);
+    cS = cos(psi); sS = sin(psi);
+
+    rot = zeros(3, 3, numel(cT));
+    rot(1, 1, :) = cS .* cT;
+    rot(1, 2, :) = -sS .* cP + cS .* sT .* sP;
+    rot(1, 3, :) = sS .* sP + cS .* sT .* cP;
+
+    rot(2, 1, :) = sS .* cT;
+    rot(2, 2, :) = cS .* cP + sS .* sT .* sP;
+    rot(2, 3, :) = -cS .* sP + sS .* sT .* cP;
+
+    rot(3, 1, :) = -sT;
+    rot(3, 2, :) = cT .* sP;
+    rot(3, 3, :) = cT .* cP;
+
 end

@@ -13,11 +13,10 @@
 % References:
 %
 
-function varargout = crfc2uvr(rfc, options)
+function varargout = crfc2uvr(rfc)
 
     arguments
         rfc (3, 1) double
-        options.angleUnit (1, 1) string = 'degrees'
     end
 
     x = rfc(1);
@@ -25,19 +24,13 @@ function varargout = crfc2uvr(rfc, options)
     z = rfc(3);
 
     % slant range
-    rslant = sqrt(x ^ 2 + y ^ 2 + z ^ 2);
-    % azimuth
+    rslant = hypot(hypot(x, y), z);
+    % direction cosine along x (unitless)
     u = x / rslant;
-    % elevation
+    % direction cosine along y (unitless)
     v = y / rslant;
 
-    switch options.angleUnitOut
-        case 'degrees'
-            u = rad2deg(u);
-            v = rad2deg(v);
-        case 'radians'
-        otherwise , error('Incorrect Output Angle Unit!');
-    end
+    uvr = [u, v, rslant];
 
     if nargout == 1
         varargout{1} = uvr;

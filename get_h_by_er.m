@@ -18,6 +18,7 @@ function Height = get_h_by_er(elev, rslant, alt0, options)
         elev {mustBeReal}
         rslant {mustBeReal}
         alt0 {mustBeReal}
+        options.spheroid (1, 1) refEllipsoid = refEllipsoid('wgs84', 'm')
         options.angleUnit (1, 1) string = 'degrees'
     end
 

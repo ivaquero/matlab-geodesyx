@@ -12,13 +12,14 @@
 % Attention:
 %
 
-function rslant = get_rslant_by_enh(alt, xEast, yNorth, alt0)
+function rslant = get_rslant_by_enh(alt, xEast, yNorth, alt0, options)
 
     arguments
         alt {mustBeReal}
         xEast {mustBeReal}
         yNorth {mustBeReal}
         alt0 {mustBeReal}
+        options.spheroid (1, 1) refEllipsoid = refEllipsoid('wgs84', 'm')
     end
 
     Rmean = options.spheroid.MeanRadius;

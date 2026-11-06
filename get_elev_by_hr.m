@@ -20,6 +20,7 @@ function elev = get_elev_by_hr(alt, rslant, alt0, options)
         alt {mustBeReal}
         rslant {mustBeReal, mustBeNonnegative}
         alt0 {mustBeReal}
+        options.spheroid (1, 1) refEllipsoid = refEllipsoid('wgs84', 'm')
         options.angleUnit (1, 1) string = 'degrees'
         options.angleUnitOut (1, 1) string = 'degrees'
     end
@@ -42,7 +43,8 @@ function elev = get_elev_by_hr(alt, rslant, alt0, options)
 
     % When height is out of range, the calculated angle is an imaginary number
     % and the angle is forced to be 90 degrees
-    if ~isempty(find(abs(x) > 1, 1))
+    ix = find(abs(x) > 1);
+    if ~isempty(ix)
         disp('Altitude > Slant Range, Set Elevation to 90 degree!\n');
         elev(ix) = 90;
     end
