@@ -1,3 +1,8 @@
+% *** WARNING: NOT IMPLEMENTED / BROKEN ***
+%   Incomplete stub. This function throws at runtime: it calls the undefined
+%   helpers `unedv2euler` and `rlaunch2vel`. Needs those missing helpers defined
+%   before it can work. Do not rely on it.
+%
 % Coordinate Transformation: Launch ==> Velocity
 %
 % Syntax:

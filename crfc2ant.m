@@ -1,3 +1,9 @@
+% *** WARNING: RUNS BUT RETURNS WRONG RESULTS (BROKEN) ***
+%   `front * M` is a 3x1 by 1x3 OUTER product, yielding a 3x3 matrix, not a
+%   projection. The subsequent Mc(1..3) linear indices and asin(Mc(3)/rslant0)
+%   are therefore wrong and can even return complex values. Needs the original
+%   reference definition of the M projection before it can be fixed.
+%
 % Coordinate Transformation: RFC ==> Antenna
 %
 % Syntax:

@@ -1,4 +1,10 @@
-% Coordinate Transformation: Antenna ==> Platorm
+% *** WARNING: NOT IMPLEMENTED / BROKEN ***
+%   The antenna -> platform projection below is incorrect: `antenna' * M`
+%   multiplies a 1x3 by a 1x3 and throws a dimension error. Needs the
+%   original reference definition of the M projection before it can be fixed.
+%   Do not rely on this function until repaired.
+%
+% Coordinate Transformation: Antenna ==> Platform
 %
 % Syntax:
 %   varargout = cant2platform(antenna, az0, elev0, rslant0, options)

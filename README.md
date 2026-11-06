@@ -34,6 +34,19 @@ This is the aerospace extension layer and is not self-contained. It relies on:
   (`cecef2eci`, `ceci2ecef`, `caer2eci`, `ceci2aer`), which call `siderealTime` and
   `juliandate`.
 
+## Known limitations
+
+A small number of functions are not yet functional. Each affected file carries a
+header `WARNING` banner; do not rely on them until repaired against the original
+reference.
+
+- Launch / velocity orientation stubs — throw at runtime because they call the
+  undefined helpers `unedv2euler` / `rlaunch2vel` and use an undefined `dt`:
+  `claunch2body`, `claunch2vel`, `cvel2launch`.
+- Antenna / platform / RFC spherical projection family — the `M` projection is
+  incorrect: `cant2rfc` and `cant2platform` throw a matrix-dimension error, while
+  `crfc2ant` and `cplatform2ant` run but silently return wrong (occasionally complex) results.
+
 ![schema](docs/geodesyx.drawio.png)
 
 > Dotted line in the schematic diagram indicates indirect transformation, which may cause cumulative errors

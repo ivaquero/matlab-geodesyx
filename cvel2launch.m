@@ -1,3 +1,9 @@
+% *** WARNING: NOT IMPLEMENTED / BROKEN ***
+%   Incomplete stub. This function throws at runtime: it calls the undefined
+%   helpers `unedv2euler` and `rlaunch2vel` and uses an undefined variable `dt`.
+%   Needs those missing helpers and the dt parameter defined before it can work.
+%   Do not rely on it.
+%
 % Coordinate Transformation: Body ==> ENU
 %
 % Syntax:

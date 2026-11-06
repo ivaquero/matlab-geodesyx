@@ -1,3 +1,8 @@
+% *** WARNING: NOT IMPLEMENTED / BROKEN ***
+%   Incomplete stub. This function throws at runtime: it calls the undefined
+%   helper `unedv2euler` and uses an undefined variable `dt`. Needs the missing
+%   helper and the dt parameter defined before it can work. Do not rely on it.
+%
 % Coordinate Transformation: Launch ==> Body
 %
 % Syntax:
