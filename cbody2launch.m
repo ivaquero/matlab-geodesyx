@@ -34,7 +34,8 @@ function varargout = cbody2launch(body, angles, lat0, lon0, alt0, options)
 
     launch2body = rotate_x(-roll, 'angleUnit', options.angleUnit) * rotate_y(-pitch, 'angleUnit', options.angleUnit) * rotate_z(-yaw, 'angleUnit', options.angleUnit);
 
-    ECEF_g = cgeodetic2ecef(lat0, lon0, alt0, 'angleUnit', options.angleUnit, 'spheroid', options.spheroid);
+    [ex, ey, ez] = cgeodetic2ecef(lat0, lon0, alt0, 'angleUnit', options.angleUnit, 'spheroid', options.spheroid);
+    ECEF_g = [ex; ey; ez];
     launch = launch2body' * body - ECEF_g;
 
     if nargout == 1

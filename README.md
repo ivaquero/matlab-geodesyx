@@ -36,16 +36,32 @@ This is the aerospace extension layer and is not self-contained. It relies on:
 
 ## Known limitations
 
-A small number of functions are not yet functional. Each affected file carries a
-header `WARNING` banner; do not rely on them until repaired against the original
-reference.
+The launch/velocity/body orientation stubs and the antenna/platform/RFC spherical
+projection family were previously non-functional (they called undefined helpers
+`unedv2euler` / `rlaunch2vel` and used a garbled `M` projection). They have been
+reconstructed, but because the schema and the toolbox never defined the exact
+original semantics, the reconstruction follows the toolbox's own conventions and
+makes a few explicit assumptions. Review these before relying on the results:
 
-- Launch / velocity orientation stubs — throw at runtime because they call the
-  undefined helpers `unedv2euler` / `rlaunch2vel` and use an undefined `dt`:
-  `claunch2body`, `claunch2vel`, `cvel2launch`.
-- Antenna / platform / RFC spherical projection family — the `M` projection is
-  incorrect: `cant2rfc` and `cant2platform` throw a matrix-dimension error, while
-  `crfc2ant` and `cplatform2ant` run but silently return wrong (occasionally complex) results.
+- Launch / velocity orientation — `claunch2body`, `claunch2vel`, `cvel2launch`
+  (with the new helpers `unedv2euler`, `rlaunch2vel`) now form exact inverses of
+  the runnable `cbody2launch`. The body/velocity attitude is inferred from the
+  velocity vector as heading + flight-path angle with **zero bank** (roll is not
+  observable from a single velocity vector); `lift` / `side_force` and any
+  angle-of-attack / sideslip generalization are accepted but **not** used. Supply
+  explicit Euler angles via `cbody2launch` when the full attitude is known.
+- Antenna / platform / RFC projection — `cant2rfc` / `crfc2ant` rotate the target
+  into the boresight frame via `renu2rfc` and extract spherical coordinates with
+  the `matlab-geodesy` `cenu2aer` convention. `cant2platform` / `cplatform2ant`
+  treat the platform frame as the ENU reference frame, because no separate
+  platform-frame rotation exists in the schema; the reference `az0` / `elev0` /
+  `rslant0` therefore do not affect the platform result.
+- `claunch2ecef` was already runnable and is confirmed correct; note the schema's
+  Ground→ECEF edge mislabels the middle term as `R_z(B_T)` — the inverse edge and
+  the code both use `R_x(B_T)`.
+
+All of the above are exercised by round-trip self-checks in `test/test_regression.m`
+(self-consistency only — no external ground-truth constants are asserted).
 
 ![schema](docs/geodesyx.drawio.png)
 

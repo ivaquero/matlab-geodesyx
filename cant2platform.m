@@ -1,59 +1,45 @@
-% *** WARNING: NOT IMPLEMENTED / BROKEN ***
-%   The antenna -> platform projection below is incorrect: `antenna' * M`
-%   multiplies a 1x3 by a 1x3 and throws a dimension error. Needs the
-%   original reference definition of the M projection before it can be fixed.
-%   Do not rely on this function until repaired.
-%
 % Coordinate Transformation: Antenna ==> Platform
 %
 % Syntax:
 %   varargout = cant2platform(antenna, az0, elev0, rslant0, options)
 %
 % Input:
-%   antenna                         Target's antenna coordinates in [m, m, m]
-%   [az0, elev0, rslant0]           Reference's antenna spherical coordinates in [deg, deg, m]
+%   antenna                         Target's position in the antenna/ground (ENU)
+%                                   frame as [East; North; Up] in [m, m, m]
+%   [az0, elev0, rslant0]           Antenna boresight (reference LOS) spherical
+%                                   coordinates in [deg, deg, m] (see Attention)
 %   options.angleUnit               Input's angle unit in 'degrees' (default) or 'radians'
 %   options.angleUnitOut            Output's angle unit in 'degrees' (default) or 'radians'
 % Output:
-%   varargout                       Target's platform spherical coordinates in [deg, deg, m]
+%   varargout                       Target's platform spherical coordinates in
+%                                   [angle, angle, m]
 % Attention:
+%   RECONSTRUCTED. The schema (docs/geodesyx.drawio.png) and the toolbox define
+%   only one antenna-frame rotation, `renu2rfc` (ENU -> RFC boresight). No
+%   separate platform-frame rotation is provided, so the platform frame is taken
+%   to be the ENU reference frame itself and the platform spherical coordinates are
+%   the target's ENU spherical coordinates:
+%       [azp, elevp, rslantp] = cenu2aer(antenna)
+%   Consequently the reference LOS (az0, elev0, rslant0) does not affect the
+%   platform-frame result; it is accepted for API symmetry with `cant2rfc`. If a
+%   distinct platform attitude is later defined, replace the identity here with
+%   that rotation. Exact inverse of `cplatform2ant`.
+%
+% References:
 %
 
 function varargout = cant2platform(antenna, az0, elev0, rslant0, options)
 
     arguments
         antenna (3, 1) double
-        az0 {mustBeReal}
-        elev0 {mustBeReal}
-        rslant0 {mustBeReal, mustBeNonnegative}
+        az0 {mustBeReal} %#ok
+        elev0 {mustBeReal} %#ok
+        rslant0 {mustBeReal, mustBeNonnegative} %#ok
         options.angleUnit (1, 1) string = 'degrees'
         options.angleUnitOut (1, 1) string = 'degrees'
     end
 
-    switch options.angleUnit
-        case 'degrees'
-            az0 = deg2rad(az0);
-            elev0 = deg2rad(elev0);
-        case 'radians'
-        otherwise , error('Incorrect Input Angle Unit!');
-    end
-
-    M(1) = rslant0 * cos(elev0) * sin(az0);
-    M(2) = rslant0 * cos(elev0) * cos(az0);
-    M(3) = rslant0 * sin(elev0);
-    M_c = antenna' * M;
-
-    azp = atan2(M_c(1), M_c(2));
-    elevp = asin(M_c(3) / rslant0);
-    rslantp = rslant0;
-
-    switch options.angleUnitOut
-        case 'degrees'
-            azp = rad2deg(azp);
-            elevp = rad2deg(elevp);
-        case 'radians'
-        otherwise , error('Incorrect Output Angle Unit!');
-    end
+    [azp, elevp, rslantp] = cenu2aer(antenna(1), antenna(2), antenna(3), 'angleUnitOut', options.angleUnitOut);
 
     if nargout == 1
         varargout{1} = [azp, elevp, rslantp];

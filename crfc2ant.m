@@ -1,21 +1,27 @@
-% *** WARNING: RUNS BUT RETURNS WRONG RESULTS (BROKEN) ***
-%   `front * M` is a 3x1 by 1x3 OUTER product, yielding a 3x3 matrix, not a
-%   projection. The subsequent Mc(1..3) linear indices and asin(Mc(3)/rslant0)
-%   are therefore wrong and can even return complex values. Needs the original
-%   reference definition of the M projection before it can be fixed.
-%
 % Coordinate Transformation: RFC ==> Antenna
 %
 % Syntax:
 %   varargout = crfc2ant(front, az0, elev0, rslant0, options)
 %
 % Input:
-%   front                           Target's front coordinates in [m, m, m]
-%   [az0, elev0, rslant0]           Reference's antenna spherical coordinates in [deg, deg, m]
+%   front                           Target's position in the RFC (boresight) frame
+%                                   as a 3x1 Cartesian vector in [m, m, m]
+%   [az0, elev0, rslant0]           Antenna boresight (reference LOS) spherical
+%                                   coordinates in [deg, deg, m]
 %   options.angleUnit               Input's angle unit in 'degrees' (default) or 'radians'
+%   options.angleUnitOut            Output's angle unit in 'degrees' (default) or 'radians'
 % Output:
-%   varargout                       Target's antenna spherical coordinates in [deg, deg, m]
+%   varargout                       Target's antenna/ENU spherical coordinates in
+%                                   [angle, angle, m]
 % Attention:
+%   RECONSTRUCTED. Exact inverse of `cant2rfc`:
+%       enu = renu2rfc(az0, elev0)' * front
+%       [azant, elevant, rslantant] = cenu2aer(enu)
+%   `rslant0` is accepted for API compatibility but does not enter the rotation.
+%   The original stub's `front * M` was a 3x1-by-1x3 outer product (a 3x3 matrix),
+%   not a projection, and could return complex values.
+%
+% References:
 %
 
 function varargout = crfc2ant(front, az0, elev0, rslant0, options)
@@ -24,48 +30,13 @@ function varargout = crfc2ant(front, az0, elev0, rslant0, options)
         front (3, 1) double
         az0 {mustBeReal}
         elev0 {mustBeReal}
-        rslant0 {mustBeReal, mustBeNonnegative}
+        rslant0 {mustBeReal, mustBeNonnegative} %#ok
         options.angleUnit (1, 1) string = 'degrees'
+        options.angleUnitOut (1, 1) string = 'degrees'
     end
 
-    switch options.angleUnit
-        case 'degrees'
-            az0 = deg2rad(az0);
-            elev0 = deg2rad(elev0);
-        case 'radians'
-        otherwise , error('Incorrect Input Angle Unit!');
-    end
-
-    M(1) = rslant0 * cos(elev0) * sin(az0);
-    M(2) = rslant0 * cos(elev0) * cos(az0);
-    M(3) = rslant0 * sin(elev0);
-    M_c = front * M;
-
-    % azimuth
-    if abs(M_c(2)) < 1e-6
-
-        if (M_c(1) < 0)
-            azant = 3 * pi / 2;
-        else
-            azant = pi / 2;
-        end
-
-    elseif abs(M_c(2)) < 0
-
-        if (abs(M_c(1)) > 1e-6)
-            azant = atan(M_c(1) / M_c(2)) + pi;
-        end
-
-    else
-        azant = atan(M_c(1) / M_c(2));
-    end
-
-    % azimuth of antenna
-    azant = mod(azant, 2 * pi);
-    % elevation of antenna
-    elevant = asin(M_c(3) / rslant0);
-    % slant range of antenna
-    rslantant = rslant0;
+    enu = renu2rfc(az0, elev0, 'angleUnit', options.angleUnit)' * front;
+    [azant, elevant, rslantant] = cenu2aer(enu(1), enu(2), enu(3), 'angleUnitOut', options.angleUnitOut);
 
     if nargout == 1
         varargout{1} = [azant, elevant, rslantant];

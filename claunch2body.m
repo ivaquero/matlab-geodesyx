@@ -1,22 +1,26 @@
-% *** WARNING: NOT IMPLEMENTED / BROKEN ***
-%   Incomplete stub. This function throws at runtime: it calls the undefined
-%   helper `unedv2euler` and uses an undefined variable `dt`. Needs the missing
-%   helper and the dt parameter defined before it can work. Do not rely on it.
-%
 % Coordinate Transformation: Launch ==> Body
 %
 % Syntax:
 %   varargout = claunch2body(launch, launch_vel, lat0, lon0, alt0, options)
 %
 % Input:
-%   launch                          Target's launch coordinates in [m, m, m]
-%   launch_vel                      Target's launch velocity in [m/s, m/s, m/s]
-%   dt                              Time interval in seconds
+%   launch                          Target's launch (ground/ENU) coordinates in [m, m, m]
+%   launch_vel                      Target's velocity in the launch frame in
+%                                   [m/s, m/s, m/s] as [East; North; Up]
 %   [lat0, lon0, alt0]              Reference's geodetic coordinates in [deg, deg, m]
 %   options.angleUnit               Input's angle unit in 'degrees' (default) or 'radians'
+%   options.spheroid                Reference ellipsoid (default wgs84)
 % Output:
 %   varargout                       Target's body coordinates in [m, m, m]
 % Attention:
+%   RECONSTRUCTED. The body attitude is inferred from the velocity vector via
+%   `unedv2euler` (heading + flight-path angle, zero bank), then the launch->body
+%   rotation `rotate_x(-roll) * rotate_y(-pitch) * rotate_z(-yaw)` is applied.
+%   This is the exact inverse of `cbody2launch`:
+%       body = launch2body * (launch + ECEF_g)
+%   so that cbody2launch(claunch2body(launch, v), angles) recovers `launch`.
+%   A non-zero bank angle cannot be recovered from velocity alone; use
+%   `cbody2launch` with explicit `angles` when the full attitude is known.
 %
 % References:
 %
@@ -33,12 +37,15 @@ function varargout = claunch2body(launch, launch_vel, lat0, lon0, alt0, options)
         options.spheroid (1, 1) refEllipsoid = refEllipsoid('wgs84', 'm')
     end
 
-    [roll, pitch, yaw] = unedv2euler(launch_vel, dt);
+    [roll, pitch, yaw] = unedv2euler(launch_vel, 'angleUnit', options.angleUnit);
 
-    launch2body = rotate_x(roll, 'angleUnit', options.angleUnit) * rotate_y(pitch, 'angleUnit', options.angleUnit) * rotate_z(yaw, 'angleUnit', options.angleUnit);
+    launch2body = rotate_x(-roll, 'angleUnit', options.angleUnit) * ...
+                  rotate_y(-pitch, 'angleUnit', options.angleUnit) * ...
+                  rotate_z(-yaw, 'angleUnit', options.angleUnit);
 
-    ECEF_g = cgeodetic2ecef(lat0, lon0, alt0, 'angleUnit', options.angleUnit, 'spheroid', options.spheroid);
-    body = launch2body * launch + ECEF_g;
+    [ex, ey, ez] = cgeodetic2ecef(lat0, lon0, alt0, 'angleUnit', options.angleUnit, 'spheroid', options.spheroid);
+    ECEF_g = [ex; ey; ez];
+    body = launch2body * (launch + ECEF_g);
 
     if nargout == 1
         varargout{1} = body;

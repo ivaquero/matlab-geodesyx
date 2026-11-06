@@ -2,9 +2,12 @@
 % Self-contained: requires both matlab-geodesy and this toolbox on the path.
 %   run from repo root:  matlab -batch "addpath('matlab-geodesy'); addpath('matlab-geodesyx'); test/test_regression"
 %
-% NOTE: claunch2body / claunch2vel / cvel2launch and the antenna<=>platform<=>rfc
-% projection family (cant2platform / cplatform2ant / crfc2ant) are known-broken
-% (missing helpers / undefined projection) and are intentionally NOT asserted here.
+% NOTE: the launch/velocity/body family (claunch2body / claunch2vel / cvel2launch)
+% and the antenna<=>platform<=>rfc projection family (cant2rfc / cant2platform /
+% crfc2ant / cplatform2ant) were reconstructed from the schema
+% (docs/geodesyx.drawio.png), the runnable inverse cbody2launch, renu2rfc and the
+% matlab-geodesy spherical convention. They are now exercised by round-trip checks
+% below (self-consistency only -- no fabricated ground-truth constants).
 
 function test_regression
 
@@ -77,8 +80,42 @@ function test_regression
     chk('get_rslant_by_enh finite', isfinite(get_rslant_by_enh(400., 100., 200., 72.)));
 
     % --- cgps2aer lat/lon fix sanity (finite, az in [0,360)) ---
-    [t2, az2, el2, rs3] = cgps2aer([0 31.635 116.701 464.8], 31.6775, 116.7559, 72.4);
+    [~, az2, el2, rs3] = cgps2aer([0 31.635 116.701 464.8], 31.6775, 116.7559, 72.4);
     chk('cgps2aer finite az/el/rs', all(isfinite([az2 el2 rs3])) && rs3 > 0);
+
+    % --- launch / velocity / body family (reconstructed) ---
+    launch0 = [120; -340; 55];
+    v0 = [800; 1500; 200];                         % launch-frame velocity [E;N;U]
+    lat0 = 31.6775; lon0 = 116.7559; alt0 = 72.4;
+
+    body = claunch2body(launch0, v0, lat0, lon0, alt0);
+    [rr, pp, yy] = unedv2euler(v0);
+    launch_rb = cbody2launch(body, [rr; pp; yy], lat0, lon0, alt0);
+    chk('claunch2body is 3x1', isequal(size(body), [3 1]));
+    chk('launch->body->launch round trip', norm(launch_rb - launch0) < 1e-3);
+
+    vel = claunch2vel(launch0, v0, [0; 0; 0], [0; 0; 0], lat0, lon0, alt0);
+    launch_lv = cvel2launch(vel, v0, lat0, lon0, alt0);
+    chk('claunch2vel is 3x1', isequal(size(vel), [3 1]));
+    chk('launch->velocity->launch round trip', norm(launch_lv - launch0) < 1e-3);
+
+    % claunch2ecef rotation must be a proper orthogonal matrix
+    R_ecef = rotate_y(pi / 2 + 12) * rotate_x(5) * rotate_z(pi / 2 - 40);
+    chk('claunch2ecef rotation orthonormal', norm(R_ecef * R_ecef' - eye(3)) < 1e-9 && abs(det(R_ecef) - 1) < 1e-9);
+
+    % --- antenna / platform / rfc projection family (reconstructed) ---
+    az0 = 30; el0 = 10; rs0 = 1000;
+
+    [azf, elf, rff] = cant2rfc(enu0, az0, el0, rs0);
+    [rx, ry, rz] = caer2enu(azf, elf, rff);
+    [a2, e2, r2] = crfc2ant([rx; ry; rz], az0, el0, rs0);
+    [azE, elE, rE] = cenu2aer(enu0(1), enu0(2), enu0(3));
+    chk('antenna->RFC->antenna matches ENU spherical', max(abs([a2 e2 r2] - [azE elE rE])) < 1e-6);
+
+    s = cant2platform(enu0, az0, el0, rs0);
+    [cx, cy, cz] = caer2enu(s(1), s(2), s(3));
+    s2 = cplatform2ant([cx; cy; cz], az0, el0, rs0);
+    chk('antenna->platform->antenna round trip', max(abs(s2 - s)) < 1e-6);
 
     fprintf('\nREGRESSION: %d passed, %d failed\n', npass, nfail);
     if nfail > 0

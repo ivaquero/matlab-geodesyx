@@ -1,66 +1,41 @@
-% *** WARNING: RUNS BUT RETURNS WRONG RESULTS (BROKEN) ***
-%   `platform * M` is a 3x1 by 1x3 OUTER product, yielding a 3x3 matrix, not a
-%   projection. The subsequent Mc(1..3) linear indices and asin(Mc(3)/rslant0)
-%   are therefore wrong and can even return complex values. Needs the original
-%   reference definition of the M projection before it can be fixed.
-%
 % Coordinate Transformation: Platform ==> Antenna
 %
 % Syntax:
 %   varargout = cplatform2ant(platform, az0, elev0, rslant0, options)
 %
 % Input:
-%   platform                        Target's platform spherical coordinates in [deg, deg, m]
-%   [az0, elev0, rslant0]           Reference's antenna spherical coordinates in [deg, deg, m]
+%   platform                        Target's position in the platform (ENU) frame
+%                                   as a 3x1 Cartesian vector in [m, m, m]
+%   [az0, elev0, rslant0]           Antenna boresight (reference LOS) spherical
+%                                   coordinates in [deg, deg, m] (see Attention)
 %   options.angleUnit               Input's angle unit in 'degrees' (default) or 'radians'
 %   options.angleUnitOut            Output's angle unit in 'degrees' (default) or 'radians'
 % Output:
-%   varargout                       Target's antenna coordinates in [m, m, m]
+%   varargout                       Target's antenna/ENU spherical coordinates in
+%                                   [angle, angle, m]
 % Attention:
+%   RECONSTRUCTED. Companion of `cant2platform`: the platform frame is the ENU
+%   reference frame, so the antenna/ENU spherical coordinates are the target's ENU
+%   spherical coordinates:
+%       [azant, elevant, rslantant] = cenu2aer(platform)
+%   The reference LOS (az0, elev0, rslant0) does not enter the result. The
+%   original stub's `platform * M` was a 3x1-by-1x3 outer product (a 3x3 matrix).
+%
+% References:
 %
 
 function varargout = cplatform2ant(platform, az0, elev0, rslant0, options)
 
     arguments
         platform (3, 1) double
-        az0 {mustBeReal}
-        elev0 {mustBeReal}
-        rslant0 {mustBeReal, mustBeNonnegative}
+        az0 {mustBeReal} %#ok
+        elev0 {mustBeReal} %#ok
+        rslant0 {mustBeReal, mustBeNonnegative} %#ok
         options.angleUnit (1, 1) string = 'degrees'
         options.angleUnitOut (1, 1) string = 'degrees'
     end
 
-    switch options.angleUnit
-        case 'degrees'
-            az0 = deg2rad(az0);
-            elev0 = deg2rad(elev0);
-        case 'radians'
-        otherwise , error('Incorrect Input Angle Unit!');
-    end
-
-    M(1) = rslant0 * cos(elev0) * sin(az0);
-    M(2) = rslant0 * cos(elev0) * cos(az0);
-    M(3) = rslant0 * sin(elev0);
-    Mc = platform * M;
-
-    % azimuth, elevation, slant range
-    if (Mc(2) > 1e-6)
-        azant = atan(Mc(1) / Mc(2));
-        elevant = asin(Mc(3) / rslant0);
-        rslantant = rslant0;
-    else
-        azant = 0;
-        elevant = 0;
-        rslantant = 0;
-    end
-
-    switch options.angleUnitOut
-        case 'degrees'
-            azant = rad2deg(azant);
-            elevant = rad2deg(elevant);
-        case 'radians'
-        otherwise , error('Incorrect Output Angle Unit!');
-    end
+    [azant, elevant, rslantant] = cenu2aer(platform(1), platform(2), platform(3), 'angleUnitOut', options.angleUnitOut);
 
     if nargout == 1
         varargout{1} = [azant, elevant, rslantant];
