@@ -12,20 +12,20 @@
 
 function quat = qangle2quat(axis, angle)
 
-    axis = axis(:).';                 % normalize to (3, nAxis) columns
-    n = size(axis, 2);
+    [n, ~] = size(axis);              % axis has 3 columns
 
-    angle = angle(:);                 % column
+    angle = angle(:);                 % column (k, 1)
     if numel(angle) == 1 && n > 1
         angle = repmat(angle, n, 1);
     end
-    s = sin(angle / 2);
-    c = cos(angle / 2);
+
+    s = sin(angle ./ 2);              % (n, 1)
+    c = cos(angle ./ 2);
 
     quat0 = c;
-    quat1 = -axis(1, :).' .* s;
-    quat2 = -axis(2, :).' .* s;
-    quat3 = -axis(3, :).' .* s;
+    quat1 = -axis(:, 1) .* s;
+    quat2 = -axis(:, 2) .* s;
+    quat3 = -axis(:, 3) .* s;
     quat = [quat0 quat1 quat2 quat3];
 
 end

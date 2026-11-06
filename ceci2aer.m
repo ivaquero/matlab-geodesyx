@@ -19,9 +19,9 @@ function varargout = ceci2aer(utc, x_eci, y_eci, z_eci, lat0, lon0, alt0, option
 
     arguments
         utc datetime
-        x_eci {mustBeReal, mustBeEqualSize(utc, x_eci)}
-        y_eci {mustBeReal, mustBeEqualSize(utc, y_eci)}
-        z_eci {mustBeReal, mustBeEqualSize(utc, z_eci)}
+        x_eci {mustBeReal}
+        y_eci {mustBeReal, mustBeEqualSize(x_eci, y_eci)}
+        z_eci {mustBeReal, mustBeEqualSize(x_eci, z_eci)}
         lat0 {mustBeReal}
         lon0 {mustBeReal}
         alt0 {mustBeReal}

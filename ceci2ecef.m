@@ -15,9 +15,9 @@ function varargout = ceci2ecef(utc, x_eci, y_eci, z_eci)
 
     arguments
         utc datetime
-        x_eci {mustBeReal, mustBeEqualSize(utc, x_eci)}
-        y_eci {mustBeReal, mustBeEqualSize(utc, y_eci)}
-        z_eci {mustBeReal, mustBeEqualSize(utc, z_eci)}
+        x_eci {mustBeReal}
+        y_eci {mustBeReal, mustBeEqualSize(x_eci, y_eci)}
+        z_eci {mustBeReal, mustBeEqualSize(x_eci, z_eci)}
     end
 
     % Greenwich hour angles (radians)
@@ -28,9 +28,9 @@ function varargout = ceci2ecef(utc, x_eci, y_eci, z_eci)
     if nargout == 1
         varargout{1} = ecef;
     elseif nargout == 3
-        varargout{1} = ecef(1);
-        varargout{2} = ecef(2);
-        varargout{3} = ecef(3);
+        varargout{1} = ecef(1, :);
+        varargout{2} = ecef(2, :);
+        varargout{3} = ecef(3, :);
     else
         error('Invalid Number of Output Arguments');
     end

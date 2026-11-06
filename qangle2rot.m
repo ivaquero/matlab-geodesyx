@@ -12,17 +12,16 @@
 
 function rot = qangle2rot(axis, angle)
 
-    axis = axis(:).';                 % (3, n)
-    n = size(axis, 1);
+    [n, ~] = size(axis);              % axis has 3 columns
 
     angle = angle(:).';               % row (1, n) for third-dim layout
     if numel(angle) == 1 && n > 1
         angle = repmat(angle, 1, n);
     end
 
-    kx = axis(1, :);
-    ky = axis(2, :);
-    kz = axis(3, :);
+    kx = axis(:, 1).';                 % (1, n)
+    ky = axis(:, 2).';
+    kz = axis(:, 3).';
     cT = cos(angle);
     sT = sin(angle);
     vT = 1 - cT;

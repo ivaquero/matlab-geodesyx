@@ -35,9 +35,9 @@ function varargout = caer2eci(utc, az, elev, rslant, lat0, lon0, alt0, options)
     if nargout == 1
         varargout{1} = eci;
     elseif nargout == 3
-        varargout{1} = eci(1);
-        varargout{2} = eci(2);
-        varargout{3} = eci(3);
+        varargout{1} = eci(1, :);
+        varargout{2} = eci(2, :);
+        varargout{3} = eci(3, :);
     else
         error('Invalid Number of Output Arguments');
     end

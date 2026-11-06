@@ -29,6 +29,8 @@ function varargout = cecef2flight(x, y, z, vx, vy, vz, options)
     end
 
     % position
+    % NOTE: 'lat' is the geocentric latitude (asin(z/r)), which is the
+    %       convention for the spherical flight-coordinate system.
     r = sqrt(x .^ 2 + y .^ 2 + z .^ 2);
     lat = asin(z ./ r);
     lon = mod(atan2(y, x), 2 * pi);
@@ -44,10 +46,10 @@ function varargout = cecef2flight(x, y, z, vx, vy, vz, options)
 
     switch options.angleUnitOut
         case 'degrees'
-            lat = deg2rad(lat);
-            lon = deg2rad(lon);
-            chi = deg2rad(chi);
-            gamma = deg2rad(gamma);
+            lat = rad2deg(lat);
+            lon = rad2deg(lon);
+            chi = rad2deg(chi);
+            gamma = rad2deg(gamma);
         case 'radians'
         otherwise , error('Incorrect Output Angle Unit!');
     end

@@ -19,9 +19,20 @@ Its main design principles are as follows
   - add prefix `get_` to the calculation function
 - Input includes parameter type verification
 - Output dimension flexibility
-- Only use MATLAB builtin functions
+- Use MATLAB builtin functions wherever possible
 - Reference ellipsoid model is written in object-oriented form to facilitate subsequent expansion
 - Encoding only uses UTF-8
+
+## Dependencies
+
+This is the aerospace extension layer and is not self-contained. It relies on:
+
+- `matlab-geodesy` (the sibling toolbox), which must be on the path. Used symbols:
+  `refEllipsoid`, `cgeodetic2ecef`, `cecef2geodetic`, `cecef2enu`, `cecef2enuv`,
+  `cenu2ecefv`, `cenu2aer`, `caer2ecef`, `cen2ar`.
+- MATLAB Aerospace Toolbox for the Earth-centered inertial transforms
+  (`cecef2eci`, `ceci2ecef`, `caer2eci`, `ceci2aer`), which call `siderealTime` and
+  `juliandate`.
 
 ![schema](docs/geodesyx.drawio.png)
 

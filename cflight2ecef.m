@@ -44,12 +44,12 @@ function varargout = cflight2ecef(r, lat, lon, v_radial, chi, gamma, options)
 
     [lat0, lon0, ~] = cecef2geodetic(x, y, z);
 
-    % NED coordinates
-    vn = v_radial .* cos(gamma) .* cos(chi);
+    % ENU velocity components (east, north, up)
     ve = v_radial .* cos(gamma) .* sin(chi);
-    vd = -v_radial .* sin(gamma);
+    vn = v_radial .* cos(gamma) .* cos(chi);
+    vu = v_radial .* sin(gamma);
 
-    [vx, vy, vz] = cenu2ecefv(vn, ve, -vd, lat0, lon0, 'angleUnit', options.angleUnit);
+    [vx, vy, vz] = cenu2ecefv(ve, vn, vu, lat0, lon0, 'angleUnit', options.angleUnit);
 
     if nargout == 1
         varargout{1} = [x, y, z, vx, vy, vz];
